@@ -117,6 +117,7 @@ EventSender.processEmail = function(event, cb) {
     sg.API(req, function(e, r) {
         if (e || (r.statusCode != 202 && r.statusCode != 200)) {
             cb((e || 'unexpected error when sending email'));
+            return;
         }
         
         console.log(`Email sent to ${event.recipientEmail}`);
