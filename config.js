@@ -1,6 +1,4 @@
 module.exports = {
-    port: 3001,
-
     locale: 'en-GB',
 
     host_url: (process.env.HOST_URL || 'http://localhost:3001'),

@@ -4,8 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "postinstall": "bash ./post_install.sh"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -18,8 +17,6 @@
   },
   "homepage": "https://github.com/MMP-HCKMCR/team-death-svc#readme",
   "dependencies": {
-    "express": "^4.15.4",
-    "body-parser": "^1.17.2",
     "path": "^0.12.7",
     "mssql": "*",
     "validator": "^8.1.0",
