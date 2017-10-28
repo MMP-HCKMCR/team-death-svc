@@ -1,6 +1,6 @@
 module.exports = {
     port: 3001,
-    
+
     locale: 'en-GB',
 
     host_url: (process.env.HOST_URL || 'http://localhost:3001'),
@@ -13,10 +13,10 @@ module.exports = {
     },
 
     clockwork: {
-        key: 'dce76bb6130ac3f7c01588489ed8f35b01eaa55a'
+        key: process.env.CLOCKWORK
     },
 
     sendgrid: {
-        key: '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'
+        key: process.env.SENDGRID
     }
 }
