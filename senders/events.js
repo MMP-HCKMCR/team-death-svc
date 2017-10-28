@@ -9,8 +9,6 @@ module.exports = EventSender;
 
 
 EventSender.process = function() {
-    console.log('processing...');
-
     SqlConnection.getSqlRequest((e, r) => {
         if (e) {
             console.log(e);

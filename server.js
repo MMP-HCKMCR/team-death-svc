@@ -6,7 +6,7 @@ try {
     var path = require('path');
     var express = require('express');
 
-    setInterval(EventSender.process, 30000);
+    setInterval(EventSender.process, 60000);
 
     var app = express();
     app.set('port', (process.env.PORT || config.port));
