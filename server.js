@@ -1,12 +1,8 @@
 try {
-    /////////////////////////////////////
-    // config
-    /////////////////////////////////////
     var config = require('./config.js');
+    var EventSender = require('./senders/events.js');
 
-    setInterval(() => {
-
-    }, 60000);
+    setInterval(EventSender.process, 15000);
 
     console.log('service started');
 }
