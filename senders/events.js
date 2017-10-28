@@ -25,17 +25,26 @@ EventSender.process = function() {
                 e.SMS AS eventSms, \
                 e.email AS eventEmail, \
                 e.twitter AS eventTwitter, \
-                r.phone, \
-                r.email, \
-                r.twitter, \
-                r.firstName, \
-                r.lastName, \
+                e.annualRepeat, \
+                r.phone AS recipientPhone, \
+                r.email AS recipientEmail, \
+                r.twitter AS recipientTwitter, \
+                r.firstName AS recipientFirstName, \
+                r.lastName AS recipientLastName, \
+                d.phone AS deceasedPhone, \
+                d.email AS deceasedEmail, \
                 m.messageText \
             FROM [deceased] d (NOLOCK) \
             INNER JOIN [event] e (NOLOCK) ON d.deceasedId = e.deceasedId \
             INNER JOIN [recipient] r (NOLOCK) ON e.recipientId = r.recipientId \
             INNER JOIN [message] m (NOLOCK) ON e.messageId = m.messageId \
-            WHERE d.deceased = 1 AND e.eventDate < GETUTCDATE() AND e.messageSent = 0";
+            WHERE \
+                d.deceased = 1 AND e.messageSent = 0 AND \
+                (\
+                    (e.eventTypeId != 4 AND e.eventDate < GETUTCDATE()) \
+                    OR \
+                    (e.eventTypeId = 4 AND DATEADD(minute, e.minsAfterDeath, d.dateOfDeath) < GETUTCDATE()) \
+                )";
 
         r.query(query, (e, results) => {
             if (e) {
@@ -43,40 +52,90 @@ EventSender.process = function() {
                 return;
             }
 
-            _.forEach(results.recordset, (v) => EventSender.processEvent(v));
+            _.forEach(results.recordset, (v) => EventSender.processEvent(v, (e) => {
+                if (e) { console.log(e); }
+            }));
         });
     });
 }
 
 
-EventSender.processEvent = function(event) {
+EventSender.processEvent = function(event, cb) {
     if (!event) {
         return;
     }
 
-    clockwork.sendSms({ To: event.phone, Content: `${event.messageText} ${Date.now()}` }, function(e, r) {
+    if (event.eventSms) {
+        EventSender.processSms(event, (e) => cb(e));
+    }
+
+    if (event.eventEmail) {
+        EventSender.processEmail(event, (e) => cb(e));
+    }
+
+    SqlConnection.getSqlRequest((e, r) => {
         if (e) {
-            console.log(`Something went wrong: ${e}`);
+            console.log(e);
             return;
         }
 
-        console.log(`Message sent to ${r.responses[0].to} (${event.firstName} ${event.lastName})`);
-        console.log(`MessageId was ${r.responses[0].id}`);
+        var query = '';
 
-        SqlConnection.getSqlRequest((e, r) => {
-            if (e) {
-                console.log(e);
-                return;
-            }
-    
-            var query = `\
+        if (event.eventTypeId == 4 || !event.annualRepeat) {
+            query = `\
                 UPDATE [event] \
                 SET messageSent = 1 \
                 WHERE eventId = ${event.eventId}`;
-    
-            r.query(query, (e, results) => {
-                if (e) { console.log(e); }
-            });
-        });
+        }
+        else {
+            query = `\
+                UPDATE [event] \
+                SET eventDate = DATEADD(year, 1, eventDate) \
+                WHERE eventId = ${event.eventId}`;
+        }
+
+        if (query) {
+            console.log('completing message');
+            r.query(query, (e, results) => { console.log(e); });
+        }
+    });
+}
+
+EventSender.processEmail = function(event, cb) {
+    var sendgrid = require('sendgrid').mail;
+
+    var from_email = new sendgrid.Email(event.deceasedEmail);
+    var to_email = new sendgrid.Email(event.recipientEmail);
+    var content = new sendgrid.Content("text/plain", event.messageText);
+    var mail = new sendgrid.Mail(from_email, `From ${event.deceasedFirstName} ${event.deceasedLastName}`, to_email, content);
+
+    var sg = require('sendgrid')(config.sendgrid.key);
+    var req = sg.emptyRequest({
+        method: 'POST',
+        path: '/v3/mail/send',
+        body: mail.toJSON()
+    });
+
+    sg.API(req, function(e, r) {
+        if (e || (r.statusCode != 202 && r.statusCode != 200)) {
+            cb((e || 'unexpected error when sending email'));
+        }
+        
+        console.log(`Email sent to ${event.recipientEmail}`);
+        cb();
+    });
+}
+
+EventSender.processSms = function(event, cb) {
+    clockwork.sendSms({ To: event.recipientPhone, Content: event.messageText }, function(e, r) {
+        if (e) {
+            cb(`Something went wrong: ${e}`);
+            return;
+        }
+
+        console.log(`Message sent to ${r.responses[0].to} (${event.recipientFirstName} ${event.recipientLastName})`);
+        console.log(`MessageId was ${r.responses[0].id}`);
+
+        cb();
     });
 }
