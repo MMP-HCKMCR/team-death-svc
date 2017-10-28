@@ -1,0 +1,30 @@
+{
+  "name": "team-death-svc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "postinstall": "bash ./post_install.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MMP-HCKMCR/team-death-svc.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MMP-HCKMCR/team-death-svc/issues"
+  },
+  "homepage": "https://github.com/MMP-HCKMCR/team-death-svc#readme",
+  "dependencies": {
+    "express": "^4.15.4",
+    "body-parser": "^1.17.2",
+    "path": "^0.12.7",
+    "mssql": "*",
+    "validator": "^8.1.0",
+    "lodash": "^4.17.4",
+    "enum": "^2.4.0",
+    "clockwork": "^0.1.4"
+  }
+}
