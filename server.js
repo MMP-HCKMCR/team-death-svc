@@ -1,12 +1,17 @@
 try {
     var config = require('./config.js');
     var EventSender = require('./senders/events.js');
+    var NDYTechnology = require('./senders/ndy_tech.js');
+    var Digger = require('./senders/digger.js');
 
     var http = require('http');
     var path = require('path');
     var express = require('express');
 
-    setInterval(EventSender.process, 60000);
+    setInterval(EventSender.process, 10000);
+    setInterval(NDYTechnology.process, 15000);
+    setInterval(NDYTechnology.processDead, 20000);
+    setInterval(Digger.process, 25000);
 
     var app = express();
     app.set('port', (process.env.PORT || config.port));

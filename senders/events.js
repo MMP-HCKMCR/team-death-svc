@@ -29,13 +29,13 @@ EventSender.process = function() {
                 r.twitter AS recipientTwitter, \
                 r.firstName AS recipientFirstName, \
                 r.lastName AS recipientLastName, \
+                r.senderNickName \
                 d.phone AS deceasedPhone, \
                 d.email AS deceasedEmail, \
-                m.messageText \
+                e.messageText \
             FROM [deceased] d (NOLOCK) \
             INNER JOIN [event] e (NOLOCK) ON d.deceasedId = e.deceasedId \
             INNER JOIN [recipient] r (NOLOCK) ON e.recipientId = r.recipientId \
-            INNER JOIN [message] m (NOLOCK) ON e.messageId = m.messageId \
             WHERE \
                 d.deceased = 1 AND e.messageSent = 0 AND \
                 (\
@@ -60,6 +60,7 @@ EventSender.process = function() {
 
 EventSender.processEvent = function(event, cb) {
     if (!event) {
+        cb();
         return;
     }
 
@@ -68,7 +69,7 @@ EventSender.processEvent = function(event, cb) {
     }
 
     if (event.eventEmail) {
-        EventSender.processEmail(event, (e) => cb(e));
+        //EventSender.processEmail(event, (e) => cb(e));
     }
 
     SqlConnection.getSqlRequest((e, r) => {
@@ -126,7 +127,7 @@ EventSender.processEmail = function(event, cb) {
 }
 
 EventSender.processSms = function(event, cb) {
-    clockwork.sendSms({ To: event.recipientPhone, Content: event.messageText }, function(e, r) {
+    clockwork.sendSms({ To: event.recipientPhone, Content: `${event.messageText}, ${event.senderNickName}` }, function(e, r) {
         if (e) {
             cb(`Something went wrong: ${e}`);
             return;
