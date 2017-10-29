@@ -100,7 +100,7 @@ Digger.processSms = function(match, cb) {
     var msg1 = `Hi ${match.recipient1Name}, ${match.recipient1SenderNickName} thought you might like to connect with others. Try connecting with ${match.recipient2Name} on ${match.recipient2Phone}, as they have also recently lost a loved one`
     var msg2 = `Hi ${match.recipient2Name}, ${match.recipient2SenderNickName} thought you might like to connect with others. Try connecting with ${match.recipient1Name} on ${match.recipient1Phone}, as they have also recently lost a loved one`
 
-    clockwork.sendSms({ From: match.recipient2Phone, To: match.recipient1Phone, Content: msg1 }, function(e, r) {
+    clockwork.sendSms({ To: match.recipient1Phone, Content: msg1 }, function(e, r) {
         if (e) {
             cb(`Something went wrong: ${e}`);
             return;
@@ -109,7 +109,7 @@ Digger.processSms = function(match, cb) {
         console.log(`Message sent to ${r.responses[0].to} (${match.recipient1Name})`);
         console.log(`MessageId was ${r.responses[0].id}`);
 
-        clockwork.sendSms({ From: match.recipient1Phone, To: match.recipient2Phone, Content: msg2 }, function(e, r) {
+        clockwork.sendSms({ To: match.recipient2Phone, Content: msg2 }, function(e, r) {
             if (e) {
                 cb(`Something went wrong: ${e}`);
                 return;
