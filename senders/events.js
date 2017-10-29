@@ -29,7 +29,7 @@ EventSender.process = function() {
                 r.twitter AS recipientTwitter, \
                 r.firstName AS recipientFirstName, \
                 r.lastName AS recipientLastName, \
-                r.senderNickName \
+                r.senderNickName, \
                 d.phone AS deceasedPhone, \
                 d.email AS deceasedEmail, \
                 e.messageText \
