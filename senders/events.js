@@ -127,7 +127,7 @@ EventSender.processEmail = function(event, cb) {
 }
 
 EventSender.processSms = function(event, cb) {
-    clockwork.sendSms({ To: event.recipientPhone, Content: `${event.messageText}, ${event.senderNickName}` }, function(e, r) {
+    clockwork.sendSms({ From: event.deceasedPhone, To: event.recipientPhone, Content: `${event.messageText}, ${event.senderNickName}` }, function(e, r) {
         if (e) {
             cb(`Something went wrong: ${e}`);
             return;
