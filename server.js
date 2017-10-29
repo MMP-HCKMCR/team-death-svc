@@ -11,7 +11,7 @@ try {
     setInterval(EventSender.process, 10000);
     setInterval(NDYTechnology.process, 15000);
     setInterval(NDYTechnology.processDead, 20000);
-    setInterval(Digger.process, 25000);
+    setInterval(Digger.process, (24 * 60 * 60 * 1000));
 
     var app = express();
     app.set('port', (process.env.PORT || config.port));
